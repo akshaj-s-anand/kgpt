@@ -245,3 +245,6 @@ select:focus, input:focus {
     border-color: #007BFF;
     background-color: #fff;
 }
+/* #filter-department_of_study option{
+    text-transform: uppercase;
+} */

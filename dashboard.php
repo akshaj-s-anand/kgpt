@@ -25,9 +25,11 @@ $userLevelLabel = isset($userLevelLabels[$userlevel]) ? $userLevelLabels[$userle
 $stmt = $pdo->prepare("SELECT * FROM usermanagement_user");
 $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$total_users = count($users); // Count total number of users
 
 // Fetch unique filter values
 $course_completion_years = array_unique(array_column($users, 'course_completion_year'));
+$departments_of_study = array_unique(array_column($users, 'department_of_study')); // Fetch unique departments of study
 $userlevels = array_unique(array_column($users, 'userlevel'));
 $blood_groups = array_unique(array_column($users, 'blood_group'));
 ?>
@@ -56,6 +58,9 @@ $blood_groups = array_unique(array_column($users, 'blood_group'));
         <div class="content">
             <h3>User Management</h3>
             <p>Here are the users registered in the system:</p>
+            <a href="export.php" class="logout-btn">Export table</a>
+            <p>Total Users: <?php echo $total_users; ?></p> <!-- Display total number of users -->
+            
 
             <div>
                 <label for="filter-course_completion_year">Course Completion Year: </label>
@@ -63,6 +68,14 @@ $blood_groups = array_unique(array_column($users, 'blood_group'));
                     <option value="">All</option>
                     <?php foreach ($course_completion_years as $year) : ?>
                         <option value="<?php echo $year; ?>"><?php echo $year; ?></option>
+                    <?php endforeach; ?>
+                </select>
+
+                <label for="filter-department_of_study">Dept. Of Study: </label>
+                <select id="filter-department_of_study">
+                    <option value="">All</option>
+                    <?php foreach ($departments_of_study as $department) : ?>
+                        <option value="<?php echo $department; ?>"><?php echo $department; ?></option>
                     <?php endforeach; ?>
                 </select>
 
@@ -98,6 +111,7 @@ $blood_groups = array_unique(array_column($users, 'blood_group'));
                         <th>Name</th>
                         <th>Email</th>
                         <th>Course Completion Year</th>
+                        <th>Dept. Of Study</th>
                         <th>Username</th>
                         <th>User Level</th>
                         <th>Contact Number</th>
@@ -113,6 +127,7 @@ $blood_groups = array_unique(array_column($users, 'blood_group'));
                             <td><?php echo $user['name']; ?></td>
                             <td><?php echo $user['email']; ?></td>
                             <td><?php echo $user['course_completion_year']; ?></td>
+                            <td><?php echo $user['department_of_study']; ?></td>
                             <td><?php echo $user['username']; ?></td>
                             <td><?php echo $user['userlevel']; ?></td>
                             <td><?php echo $user['contact_number']; ?></td>
@@ -140,18 +155,46 @@ $blood_groups = array_unique(array_column($users, 'blood_group'));
         $(document).ready(function() {
             var table = $('#userTable').DataTable();
 
-            $('#filter-course_completion_year, #filter-userlevel, #filter-blood_group, #filter-gender').on('change', function() {
+            $('#filter-course_completion_year, #filter-department_of_study, #filter-userlevel, #filter-blood_group, #filter-gender').on('change', function() {
                 var course_completion_year = $('#filter-course_completion_year').val();
+                var department_of_study = $('#filter-department_of_study').val();
                 var userlevel = $('#filter-userlevel').val();
                 var blood_group = $('#filter-blood_group').val();
                 var gender = $('#filter-gender').val();
 
                 table.column(3).search(course_completion_year).draw();
-                table.column(5).search(userlevel).draw();
-                table.column(7).search(blood_group).draw();
-                table.column(8).search(gender).draw();
+                table.column(4).search(department_of_study).draw();
+                table.column(6).search(userlevel).draw();
+                table.column(8).search(blood_group).draw();
+                table.column(9).search(gender).draw();
             });
         });
-    </script>
+    </script><script>
+    $(document).ready(function() {
+        var table = $('#userTable').DataTable();
+
+        $('#filter-course_completion_year, #filter-department_of_study, #filter-userlevel, #filter-blood_group, #filter-gender').on('change', function() {
+            var course_completion_year = $('#filter-course_completion_year').val();
+            var department_of_study = $('#filter-department_of_study').val();
+            var userlevel = $('#filter-userlevel').val();
+            var blood_group = $('#filter-blood_group').val();
+            var gender = $('#filter-gender').val();
+
+            table.column(3).search(course_completion_year).draw();
+            table.column(4).search(department_of_study).draw();
+            table.column(6).search(userlevel).draw();
+            table.column(8).search(blood_group).draw();
+            table.column(9).search(gender).draw();
+
+            var exportUrl = 'export.php?course_completion_year=' + course_completion_year + 
+                            '&department_of_study=' + department_of_study +
+                            '&userlevel=' + userlevel +
+                            '&blood_group=' + blood_group +
+                            '&gender=' + gender;
+            $('#export-btn').attr('href', exportUrl);
+        });
+    });
+</script>
+
 </body>
 </html>
